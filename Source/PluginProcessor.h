@@ -40,6 +40,11 @@ enum ChainPositions
     HighCut
 };
 
+using Coefficients = Filter::CoefficientsPtr;
+void updateCoefficients(Coefficients& old, const Coefficients& replacements);
+
+Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRate);
+
 //==============================================================================
 /**
 */
