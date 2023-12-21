@@ -116,8 +116,43 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 
 juce::String RotarySliderWithLabels::getDisplayString() const
 {
-    return juce::String(getValue());
+    if(auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(param))
+        return choiceParam->getCurrentChoiceName();
+    
+    juce::String str;
+    bool addK = false;
+    
+    if(auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param))
+    {
+        const float THOUSAND_HZ = 1000.f;
+        float val = getValue();
+        
+        if(val >= THOUSAND_HZ)
+        {
+            val /= 1000.f;
+            addK = true;
+        }
+        
+        str = juce::String(val, (addK ? 2 : 0));
+        
+    } else {
+        jassertfalse;
+    }
+    
+    if(suffix.isNotEmpty())
+    {
+        str << " ";
+        if(addK)
+        {
+            str << "k";
+        }
+        
+        str << suffix;
+    }
+    
+    return str;
 }
+
 //==============================================================================
 
 ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audioProcessor(p)
