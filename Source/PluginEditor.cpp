@@ -241,7 +241,11 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
     
     g.fillAll (Colours::black);
     
-    auto responseArea = getLocalBounds();
+    g.drawImage(background, getLocalBounds().toFloat());
+    
+//    auto responseArea = getLocalBounds();
+    
+    auto responseArea = getAnalysisArea();
     
     auto w = responseArea.getWidth();
     
@@ -317,15 +321,89 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
     }
     
     g.setColour(Colours::lightblue);
-    g.drawRoundedRectangle(responseArea.toFloat(), 4.f, 1.f);
+    g.drawRoundedRectangle(getRenderArea().toFloat(), 4.f, 1.f);
     
-    g.setColour(Colours::white);
+    g.setColour(Colours::coral);
     g.strokePath(responseCurve, PathStrokeType(2.f));
     
     // Solo se que todo ese codigo es para dibujar el "Response Curve" del EQ
     
 }
 
+void ResponseCurveComponent::resized()
+{
+    using namespace juce;
+    background = Image(Image::PixelFormat::RGB, getWidth(), getHeight(), true);
+    
+    Graphics g(background);
+    
+    Array<float> freqs
+    {
+        20, 30, 40, 50, 100,
+        200, 300, 400, 500, 1000,
+        2000, 3000, 4000, 5000, 10000,
+        20000
+    };
+    
+    auto renderArea = getAnalysisArea();
+    auto left = renderArea.getX();
+    auto right = renderArea.getRight();
+    auto top = renderArea.getY();
+    auto bottom = renderArea.getBottom();
+    auto width = renderArea.getWidth();
+    
+    Array<float> xs;
+    for(auto f : freqs)
+    {
+        auto normX = mapFromLog10(f, 20.f, 20000.f);
+        xs.add(left + width * normX);
+    }
+    
+    g.setColour(Colours::dimgrey);
+    for(float x : xs)
+    {
+//        auto normX = mapFromLog10(x, 20.f, 20000.f);
+        g.drawVerticalLine(x, top, bottom);
+    }
+    
+    Array<float> gain
+    {
+        -24, -12, 0, 12, 24
+    };
+    
+    for(auto gDb : gain)
+    {
+        auto y = jmap(gDb, -24.f, 24.f, float(bottom), float(top));
+        
+        g.setColour(gDb == 0.f ? Colours::greenyellow : Colours::darkgrey);
+        g.drawHorizontalLine(y, left, right);
+    }
+        
+//    g.drawRect(getRenderArea());
+}
+
+
+juce::Rectangle<int> ResponseCurveComponent::getRenderArea()
+{
+    auto bounds = getLocalBounds();
+    
+//    bounds.reduce(10, 8);
+
+    bounds.removeFromTop(12);
+    bounds.removeFromBottom(2);
+    bounds.removeFromLeft(20);
+    bounds.removeFromRight(20);
+    
+    return bounds;
+}
+
+juce::Rectangle<int> ResponseCurveComponent::getAnalysisArea()
+{
+    auto bounds = getRenderArea();
+    bounds.removeFromTop(4);
+    bounds.removeFromBottom(4);
+    return bounds;
+}
 
 //==============================================================================
 
@@ -346,7 +424,11 @@ peakQualitySliderAttachment(audioProcessor.apvts, "Peak Quality", peakQualitySli
 lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider),
 highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
 lowCutSlopeSliderAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlopeSlider),
-highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider)
+highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider),
+
+lowcutBypassButtonAttachment(audioProcessor.apvts, "LowCut Bypassed", lowcutBypassButton),
+peakBypassButtonAttachment(audioProcessor.apvts, "Peak Bypassed", peakBypassButton),
+highcutBypassButtonAttachment(audioProcessor.apvts, "HighCut Bypassed", highcutBypassButton)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -377,7 +459,7 @@ highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope
         addAndMakeVisible(comp);
     }
     
-    setSize (1200, 800);
+    setSize (1800, 1080);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor(){}
@@ -405,11 +487,17 @@ void SimpleEQAudioProcessorEditor::resized()
     auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
     auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);
     
+    lowcutBypassButton.setBounds(lowCutArea.removeFromTop(25));
+    
     lowCutFreqSlider.setBounds(lowCutArea.removeFromTop(bounds.getHeight() * 0.5));
     lowCutSlopeSlider.setBounds(lowCutArea);
     
+    highcutBypassButton.setBounds(highCutArea.removeFromTop(25));
+    
     highCutFreqSlider.setBounds(highCutArea.removeFromTop(bounds.getHeight() * 0.5));
     highCutSlopeSlider.setBounds(highCutArea);
+    
+    peakBypassButton.setBounds(bounds.removeFromTop(25));
     
     peakFreqSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
     peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
@@ -429,6 +517,10 @@ std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
         &highCutFreqSlider,
         &lowCutSlopeSlider,
         &highCutSlopeSlider,
-        &responseCurveComponent
+        &responseCurveComponent,
+        &lowcutBypassButton,
+        &peakBypassButton,
+        &highcutBypassButton
+        
     };
 } 

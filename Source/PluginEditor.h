@@ -73,6 +73,8 @@ juce::Timer
     
     void paint(juce::Graphics& g) override;
     
+    void resized() override;
+    
 private:
     SimpleEQAudioProcessor& audioProcessor;
     juce::Atomic<bool> parametersChanged { false };
@@ -80,6 +82,11 @@ private:
     MonoChain monoChain;
 
     void updateChain();
+    
+    juce::Image background;
+    
+    juce::Rectangle<int> getRenderArea();
+    juce::Rectangle<int> getAnalysisArea();
 };
 
 //==============================================================================
@@ -123,6 +130,13 @@ private:
                 highCutFreqSliderAttachment,
                 lowCutSlopeSliderAttachment,
                 highCutSlopeSliderAttachment;
+    
+    juce::ToggleButton lowcutBypassButton, peakBypassButton, highcutBypassButton;
+    
+    using ButtonAttachment = APVTS::ButtonAttachment;
+    ButtonAttachment lowcutBypassButtonAttachment,
+                     peakBypassButtonAttachment,
+                     highcutBypassButtonAttachment;
     
     std::vector<juce::Component*> getComps();
 
