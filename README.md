@@ -1,6 +1,3 @@
-
-![Captura de Pantalla 2023-12-30 a la(s) 12 59 11](https://github.com/IsaacGC95/SimpleEQ/assets/155248312/69e0d02c-9b6f-4e9d-bef2-cf6821329494)
-
 # Simple EQ (w/JUCE)
 
 This is a simple Equalizer (EQ) audio plugin built with the JUCE framework.
@@ -27,3 +24,5 @@ This is a simple Equalizer (EQ) audio plugin built with the JUCE framework.
 ## Known Issues
 
 - Cannot use when connected to bluetooth to Galaxy Buds Live headphones: I suppose it's because the headphonse enter "call mode" and somehow bugs the app.
+
+![Captura de Pantalla 2023-12-30 a la(s) 12 59 11](https://github.com/IsaacGC95/SimpleEQ/assets/155248312/69e0d02c-9b6f-4e9d-bef2-cf6821329494)
