@@ -20,3 +20,7 @@ This is a simple Equalizer (EQ) audio plugin built with the JUCE framework.
 - Save the components in their respective folders in your Library/Audio/Plug-ins folder.
 - Open it with your respective DAW.
 - Enjoy!
+
+## Known Issues
+
+- Cannot use when connected to bluetooth to Galaxy Buds Live headphones: I suppose it's because the headphonse enter "call mode" and somehow bugs the app.
