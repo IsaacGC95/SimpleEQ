@@ -12,7 +12,6 @@ This is a simple Equalizer (EQ) audio plugin built with the JUCE framework.
 
 - [JUCE Framework](https://juce.com/) installed.
 - MacOSX
-- Windows support comming soon.
 
 ## Build Instructions 
 
