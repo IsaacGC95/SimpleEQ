@@ -1,6 +1,8 @@
 # Simple EQ (w/JUCE)
 
 This is a simple Equalizer (EQ) audio plugin built with the JUCE framework.
+It was made following the next tutorial made by matkatmusic -> https://www.youtube.com/watch?v=i_Iq4_Kd7Rc&t=655s
+
 
 ## Features
 
